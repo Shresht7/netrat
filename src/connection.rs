@@ -4,11 +4,44 @@ use std::{
     thread,
 };
 
+// -------
+// HANDLER
+// -------
+
+/// Handles the bi-directional I/O communication on the [stream][TcpStream]
+pub fn handle(stream: TcpStream) -> std::io::Result<()> {
+    log::info!("Connection established");
+
+    // Split the stream so that we can read and write across threads
+    let read_stream = stream.try_clone()?;
+    let write_stream = stream;
+
+    // Thread to handle incoming data (socket -> stdout)
+    let reader_thread_handle = start_reader(read_stream);
+    // Thread to handle outgoing data (stdin -> socket)
+    let writer_thread_handle = start_writer(write_stream);
+
+    // Wait for both threads to finish before exiting
+    if let Err(e) = reader_thread_handle.join() {
+        log::error!("Reader thread panicked: {:?}", e);
+    }
+    if let Err(e) = writer_thread_handle.join() {
+        log::error!("Writer thread panicked: {:?}", e);
+    }
+
+    log::info!("Connection closed");
+    Ok(())
+}
+
+// -----
+// TASKS
+// -----
+
 /// The size of the buffer to use when reading data from stdin or the tcp stream
 const BUFFER_SIZE: usize = 1024;
 
 /// Starts a thread that continuously reads from the TCP stream and writes to stdout
-pub fn start_reader(mut read_stream: TcpStream) -> thread::JoinHandle<()> {
+fn start_reader(mut read_stream: TcpStream) -> thread::JoinHandle<()> {
     thread::spawn(move || {
         let mut stdout = io::stdout().lock(); // Obtain a reference to stdout
         let mut buffer = [0u8; BUFFER_SIZE]; // Create a buffer to hold read data
@@ -50,7 +83,7 @@ pub fn start_reader(mut read_stream: TcpStream) -> thread::JoinHandle<()> {
 }
 
 /// Starts a thread that reads from stdin and writes to the TCP stream
-pub fn start_writer(mut write_stream: TcpStream) -> thread::JoinHandle<()> {
+fn start_writer(mut write_stream: TcpStream) -> thread::JoinHandle<()> {
     thread::spawn(move || {
         let mut stdin = io::stdin().lock(); // Obtain a reference to stdin
         let mut buffer = [0u8; BUFFER_SIZE]; // Create a buffer to hold write data
