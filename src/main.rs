@@ -3,6 +3,8 @@ use std::{
     net, thread,
 };
 
+mod cli;
+
 /// The size of the buffer to use when reading data from stdin or the tcp stream
 const BUFFER_SIZE: usize = 1024;
 
@@ -10,17 +12,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize the logger
     env_logger::init();
 
-    // Read the command-line arguments
-    let mut args = std::env::args();
-    args.next(); // Consume the first argument (the path to this executable)
-
-    // Parse the address from the command-line arguments
-    let address = args.next().expect("please specify the address");
-    let address = address.parse::<net::SocketAddr>()?;
+    // Parse the command-line arguments
+    let args = cli::parse();
 
     // Connect to the address
-    let stream = net::TcpStream::connect(address)?;
-    log::info!("Connected to the server: {}", address);
+    let stream = net::TcpStream::connect(&args.address)?;
+    log::info!("Connected to the server: {}", &args.address);
 
     // Split the stream so that we can read and write across threads
     let mut read_stream = stream.try_clone()?;
