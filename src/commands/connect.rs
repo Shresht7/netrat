@@ -1,14 +1,15 @@
-use std::net::{SocketAddr, TcpStream};
+use std::net::TcpStream;
 
 use clap::Parser;
 
 use crate::connection;
+use netrat::helpers::Address;
 
 /// Connect to a remote server (client mode)
 #[derive(Parser)]
 pub struct Connect {
     /// The server address to connect to (e.g. 127.0.0.1:8080)
-    address: SocketAddr,
+    address: Address,
 }
 
 impl Connect {
