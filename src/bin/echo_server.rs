@@ -4,19 +4,23 @@ use std::{
     thread,
 };
 
+use clap::Parser;
+
+#[derive(Parser)]
+struct Args {
+    /// The port number to use for the server
+    port: u32,
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize the logger
     env_logger::init();
 
-    // Retrieve the command-line arguments
-    let mut args = std::env::args();
-    args.next(); // Consume the first argument (the path to this executable)
-
-    // Extract the port number from the command-line arguments
-    let port = args.next().expect("needs a port number").parse::<u32>()?;
+    // Parse the command-line arguments
+    let args = Args::parse();
 
     // Form the socket address
-    let address: SocketAddr = format!("127.0.0.1:{}", port).parse()?;
+    let address: SocketAddr = format!("127.0.0.1:{}", args.port).parse()?;
 
     // Create a new TcpListener
     let listener = TcpListener::bind(address)?;
