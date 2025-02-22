@@ -24,8 +24,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let writer_thread_handle = connection::start_writer(write_stream);
 
     // Wait for both threads to finish before exiting
-    reader_thread_handle.join().expect("reader thread panicked");
-    writer_thread_handle.join().expect("writer thread panicked");
+    if let Err(e) = reader_thread_handle.join() {
+        log::error!("Reader thread panicked: {:?}", e);
+    }
+    if let Err(e) = writer_thread_handle.join() {
+        log::error!("Writer thread panicked: {:?}", e);
+    }
 
     log::info!("Connection closed");
     Ok(())

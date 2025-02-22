@@ -19,10 +19,12 @@ pub fn start_reader(mut read_stream: TcpStream) -> thread::JoinHandle<()> {
                 Ok(0) => {
                     // If no bytes were read, then the connection was closed, so we break out of the loop and let the thread drop
                     log::info!("Reader: connection closed by remote");
+
                     // Shutdown the read half to signal the connection is ending
-                    read_stream
-                        .shutdown(Shutdown::Read)
-                        .expect("failed to shutdown reader");
+                    if let Err(e) = read_stream.shutdown(Shutdown::Read) {
+                        log::error!("Reader: failed to shutdown read half: {}", e);
+                    }
+
                     break;
                 }
 
@@ -35,10 +37,14 @@ pub fn start_reader(mut read_stream: TcpStream) -> thread::JoinHandle<()> {
             };
 
             // Write the entire buffer out to stdout
-            stdout
-                .write_all(&buffer[..bytes_read])
-                .expect("failed to write the buffer to stdout");
-            stdout.flush().expect("failed to flush stdout");
+            if let Err(e) = stdout.write_all(&buffer[..bytes_read]) {
+                log::error!("Reader: error writing to stdout: {}", e);
+                break;
+            }
+            if let Err(e) = stdout.flush() {
+                log::error!("Reader: error flushing stdout: {}", e);
+                break;
+            }
         }
     })
 }
@@ -55,10 +61,12 @@ pub fn start_writer(mut write_stream: TcpStream) -> thread::JoinHandle<()> {
                 Ok(0) => {
                     // End of Input
                     log::info!("Writer: EOF on stdin");
+
                     // Shutdown the write half to signal end of transmission
-                    write_stream
-                        .shutdown(Shutdown::Write)
-                        .expect("failed to shutdown writer");
+                    if let Err(e) = write_stream.shutdown(Shutdown::Write) {
+                        log::error!("Writer: failed to shutdown write half: {}", e);
+                    }
+
                     break;
                 }
 
@@ -71,9 +79,10 @@ pub fn start_writer(mut write_stream: TcpStream) -> thread::JoinHandle<()> {
             };
 
             // Write the entire buffer out to the stream
-            write_stream
-                .write_all(&buffer[..bytes_read])
-                .expect("failed to write to socket");
+            if let Err(e) = write_stream.write_all(&buffer[..bytes_read]) {
+                log::error!("Writer: error writing to socket: {}", e);
+                break;
+            }
         }
     })
 }
