@@ -3,6 +3,7 @@ use std::net::SocketAddr;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
+#[command(version, about)]
 pub struct Args {
     #[command(subcommand)]
     pub command: Command,
