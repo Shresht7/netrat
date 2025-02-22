@@ -3,6 +3,27 @@ use std::{
     sync, thread, time,
 };
 
+/// A simple port scanner that checks for open TCP ports on a given host
+///
+/// # Examples
+///
+/// ```
+/// use netrat::PortScanner;
+///
+/// // Create a port scanner for localhost, scanning ports 1 through 1024
+/// let scanner = PortScanner::new("127.0.0.1", 1, 1024);
+/// let open_ports = scanner.scan().expect("Scan failed");
+/// println!("Open ports: {:?}", open_ports);
+/// ```
+///
+/// ```
+/// use netrat::PortScanner;
+///
+/// // Create a port scanner for localhost, scanning ports 1 through 1024 with a 100ms timeout
+/// let scanner = PortScanner::new("127.0.0.1", 1, 1024).with_timeout(100);
+/// let open_ports = scanner.scan().expect("Scan failed");
+/// println!("Open ports: {:?}", open_ports);
+/// ```
 pub struct PortScanner {
     /// The address of the host to scan
     host: String,
