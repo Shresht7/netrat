@@ -5,6 +5,9 @@ use std::{
 };
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Initialize the logger
+    env_logger::init();
+
     // Retrieve the command-line arguments
     let mut args = std::env::args();
     args.next(); // Consume the first argument (the path to this executable)
@@ -18,11 +21,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create a new TcpListener
     let listener = TcpListener::bind(address)?;
 
-    println!("Server listening on {}...", address);
+    log::info!("Server listening on {}...", address);
     for stream in listener.incoming() {
         match stream {
             Ok(stream) => {
-                println!("Accepted connection: {}", stream.peer_addr()?);
+                log::info!("Accepted connection: {}", stream.peer_addr()?);
 
                 thread::spawn(move || {
                     let peer_addr = stream
@@ -31,13 +34,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         .unwrap_or_default();
 
                     if let Err(e) = handle_connection(stream) {
-                        eprintln!("Error handling client: {} {:?}", peer_addr, e);
+                        log::error!("Error handling client: {} {:?}", peer_addr, e);
                     }
 
-                    println!("Closing connection: {}", peer_addr);
+                    log::info!("Closing connection: {}", peer_addr);
                 });
             }
-            Err(e) => eprintln!("Connection failed: {:?}", e),
+            Err(e) => log::error!("Connection failed: {:?}", e),
         }
     }
 

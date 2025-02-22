@@ -7,6 +7,9 @@ use std::{
 const BUFFER_SIZE: usize = 1024;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Initialize the logger
+    env_logger::init();
+
     // Read the command-line arguments
     let mut args = std::env::args();
     args.next(); // Consume the first argument (the path to this executable)
@@ -17,7 +20,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Connect to the address
     let stream = net::TcpStream::connect(address)?;
-    println!("Connected to the server: {}", address);
+    log::info!("Connected to the server: {}", address);
 
     // Split the stream so that we can read and write across threads
     let mut read_stream = stream.try_clone()?;
@@ -32,7 +35,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 Ok(0) => break, // If no bytes were read, then the connection was closed, so we break out of the loop to drop the thread
                 Ok(n) => n,     // Return the number of bytes read
                 Err(e) => {
-                    eprintln!("Error reading from socket: {}", e);
+                    log::error!("Error reading from socket: {}", e);
                     break;
                 }
             };
@@ -52,7 +55,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 Ok(0) => break, // End of input
                 Ok(n) => n,
                 Err(e) => {
-                    eprintln!("Error reading from stdin: {}", e);
+                    log::error!("Error reading from stdin: {}", e);
                     break;
                 }
             };
@@ -70,6 +73,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .join()
         .expect("something went wrong in writer thread");
 
-    println!("Connection closed.");
+    log::info!("Connection closed");
     Ok(())
 }
