@@ -1,5 +1,30 @@
+//! Helpers for working with socket address in a command-line environment
+
 use std::net::{SocketAddr, ToSocketAddrs};
 
+/// A wrapper around [`SocketAddr`] that provides flexible parsing.
+///
+/// This type accepts:
+/// - A full socket address (e.g. "192.168.1.1:8080").
+/// - A port number only (e.g. "8080"), which is interpreted as "127.0.0.1:8080".
+/// - "localhost" with a port (e.g. "localhost:8080"), which is converted to "127.0.0.1:8080".
+///
+/// # Examples
+///
+/// ```
+/// use netrat::helpers::Address;
+/// // Parse a full address.
+/// let addr: Address = "192.168.1.1:8080".parse().unwrap();
+/// assert_eq!(addr.to_string(), "192.168.1.1:8080");
+///
+/// // Parse a port-only address.
+/// let addr: Address = "8080".parse().unwrap();
+/// assert_eq!(addr.to_string(), "127.0.0.1:8080");
+///
+/// // Parse localhost with port.
+/// let addr: Address = "localhost:8080".parse().unwrap();
+/// assert_eq!(addr.to_string(), "127.0.0.1:8080");
+/// ```
 #[derive(Clone)]
 pub struct Address(SocketAddr);
 
@@ -31,7 +56,7 @@ impl std::str::FromStr for Address {
             }
         }
 
-        // Check if the input is a number and try forming the socket address
+        // Check if the input is a number and try forming the socket address by assuming localhost
         if let Ok(port) = input.parse::<u32>() {
             if let Ok(addr) = format!("127.0.0.1:{}", port).parse::<SocketAddr>() {
                 return Ok(Self(addr));
