@@ -36,6 +36,10 @@ pub enum Command {
         /// End scanning at port number
         #[arg(default_value_t = 1024)]
         end: u16,
+
+        /// The timeout (in milliseconds) before considering a port closed
+        #[arg(short, long, default_value_t = 200)]
+        timeout: u64,
     },
 }
 

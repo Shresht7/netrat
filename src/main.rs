@@ -18,7 +18,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     match args.command {
         cli::Command::Connect { address } => run_client(&address)?,
         cli::Command::Listen { port } => run_server(port)?,
-        cli::Command::Scan { host, start, end } => scan_ports(&host, start, end)?,
+        cli::Command::Scan {
+            host,
+            start,
+            end,
+            timeout,
+        } => scan_ports(&host, start, end, timeout)?,
     };
 
     Ok(())
@@ -62,11 +67,18 @@ fn run_server(port: u16) -> std::io::Result<()> {
 }
 
 /// Scan ports in the range [start, end] on the given host
-fn scan_ports(host: &str, start: u16, end: u16) -> Result<(), Box<dyn std::error::Error>> {
+fn scan_ports(
+    host: &str,
+    start: u16,
+    end: u16,
+    timeout: u64,
+) -> Result<(), Box<dyn std::error::Error>> {
     println!("Scanning {} from port {} to {}...", host, start, end);
 
     // Initialize the PortScanner and scan for open ports
-    let mut open_ports = PortScanner::new(host, start, end).scan()?;
+    let mut open_ports = PortScanner::new(host, start, end)
+        .with_timeout(timeout)
+        .scan()?;
     open_ports.sort(); // Sort the ports
 
     println!("Open ports on {}:", host);
