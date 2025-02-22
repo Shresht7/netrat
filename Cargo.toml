@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2021"
 default-run = "netrat"
 
+[lib]
+path = "src/lib/mod.rs"
+
 [[bin]]
 name = "netrat"
 path = "src/main.rs"

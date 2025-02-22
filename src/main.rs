@@ -3,8 +3,9 @@ use std::{
     sync, thread, time,
 };
 
+use netrat::connection;
+
 mod cli;
-mod connection;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize the logger
