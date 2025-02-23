@@ -21,6 +21,7 @@ impl Args {
             Command::Connect(cmd) => cmd.run()?,
             Command::Listen(cmd) => cmd.run()?,
             Command::Scan(cmd) => cmd.run()?,
+            Command::Relay(cmd) => cmd.run()?,
         };
         Ok(())
     }
