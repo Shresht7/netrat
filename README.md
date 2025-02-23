@@ -6,37 +6,41 @@ A low-effort `netcat` clone written in Rust.
 - **UDP**: A single bi-directional channel 
 - **Port Scanner**: A simple scanner for open ports
 
-## Usage
+## 📦 Installation
+
+<!-- TOOD: Add installation instructions -->
+
+## 📘 Usage
 
 `netrat --help` for full help
 
 ### Connect to a TCP server
 
 ```sh
-cargo run -- connect 127.0.0.1:4321
+netrat connect 127.0.0.1:4321
 ```
 
 ### Start a TCP server
 
 ```sh
-cargo run -- listen --port 4321 --host 127.0.0.1
+netrat listen --port 4321 --host 127.0.0.1
 ```
 
 ### Connect to a UDP server
 
 ```sh
-cargo run -- connect 127.0.0.1:4321 --protocol udp
+netrat connect 127.0.0.1:4321 --protocol udp
 ```
 
 ### Start a UDP server
 
 ```sh
-cargo run -- listen --port 4321 --protocol udp
+netrat listen --port 4321 --protocol udp
 ```
 
 ---
 
-## Development
+## 🖥️ Development
 
 ### Project Structure
 
@@ -64,6 +68,6 @@ cargo run -- listen --port 4321 --protocol udp
 
 ---
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License. See [LICENSE](./LICENSE) for details.
