@@ -38,14 +38,14 @@ impl Connect {
     }
 
     fn run_udp(&self) -> std::io::Result<()> {
-        // Bind to an ephemeral port on localhost
-        let socket = UdpSocket::bind("127.0.0.1:0")?;
-        // Connect sets a default destination, which simplifies sending
+        // Bind to an ephemeral local port
+        let socket = UdpSocket::bind("0.0.0.0:0")?;
+        // Connect the socket to the remote server address
         socket.connect(&self.address)?;
-        log::info!("Connected to the server: {}", &self.address);
+        log::info!("Connected to the server: {}", self.address);
 
-        socket.send(b"Hello via UDP!")?;
-
-        Ok(())
+        // Call the UDP handler.
+        // Since the socket is already connected, it immediately enters the interactive session.
+        connection::udp::handle(socket)
     }
 }

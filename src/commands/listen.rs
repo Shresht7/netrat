@@ -39,7 +39,7 @@ impl Listen {
 
         match self.protocol {
             Protocol::TCP => self.run_tcp(address),
-            Protocol::UDP => self.run_udp(address),
+            Protocol::UDP => self.run_udp(),
         }
     }
 
@@ -64,15 +64,14 @@ impl Listen {
         Ok(())
     }
 
-    fn run_udp(&self, address: String) -> std::io::Result<()> {
-        let socket = UdpSocket::bind(&address)?;
-        log::info!("Server listening on {}", address);
+    fn run_udp(&self) -> std::io::Result<()> {
+        // Bind the socket to listen on all interfaces at the specified port
+        let socket = UdpSocket::bind(&format!("0.0.0.0:{}", self.port))?;
+        log::info!("Server listening on 0.0.0.0:{}", self.port);
 
-        let mut buffer = [0u8; 1024];
-        loop {
-            let (n, addr) = socket.recv_from(&mut buffer)?;
-            let str = String::from_utf8_lossy(&buffer[..n]);
-            log::info!("Received {} bytes from {}: {}", n, addr, str);
-        }
+        // Call the UDP handler.
+        // The handler will block until a client sends its first datagram,
+        // then record that address and begin the interactive session.
+        connection::udp::handle(socket)
     }
 }
