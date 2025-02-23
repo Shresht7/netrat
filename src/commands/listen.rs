@@ -36,7 +36,7 @@ impl Listen {
             match stream {
                 Ok(stream) => {
                     thread::spawn(move || {
-                        if let Err(e) = connection::handle(stream) {
+                        if let Err(e) = connection::tcp::handle(stream) {
                             log::error!("Error handling client: {:?}", e);
                         }
                     });

@@ -20,7 +20,7 @@ impl Connect {
         log::info!("Connected to the server: {}", &self.address);
 
         // Handle the connection
-        connection::handle(stream)?;
+        connection::tcp::handle(stream)?;
 
         Ok(())
     }
