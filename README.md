@@ -42,6 +42,10 @@ netrat listen --port 4321 --protocol udp
 
 ## 🖥️ Development
 
+> [!NOTE]
+>
+> I've decided **not** to implement anything that does any kind of execution. (e.g. `--exec` or reverse shell)
+
 ### Project Structure
 
 - `src/main.rs`
