@@ -1,6 +1,11 @@
-use std::{net::TcpListener, thread};
+use std::{
+    net::{TcpListener, UdpSocket},
+    thread,
+};
 
 use clap::Parser;
+
+use netrat::helpers::Protocol;
 
 use crate::connection;
 
@@ -13,6 +18,10 @@ pub struct Listen {
     /// The local interface to bind to (e.g. 0.0.0.0 for all interfaces, defaults to 127.0.0.1)
     #[arg(long, default_value = "127.0.0.1")]
     host: String,
+
+    /// The protocol to use
+    #[arg(short, long, alias = "mode", default_value = "tcp")]
+    protocol: Protocol,
 }
 
 impl Listen {
@@ -28,6 +37,13 @@ impl Listen {
         // Form the local address to use for the server
         let address = format!("{}:{}", host, self.port);
 
+        match self.protocol {
+            Protocol::TCP => self.run_tcp(address),
+            Protocol::UDP => self.run_udp(address),
+        }
+    }
+
+    fn run_tcp(&self, address: String) -> std::io::Result<()> {
         // Setup the [`TcpListener`] and bind it to the address
         let listener = TcpListener::bind(&address)?;
 
@@ -46,5 +62,17 @@ impl Listen {
         }
 
         Ok(())
+    }
+
+    fn run_udp(&self, address: String) -> std::io::Result<()> {
+        let socket = UdpSocket::bind(&address)?;
+        log::info!("Server listening on {}", address);
+
+        let mut buffer = [0u8; 1024];
+        loop {
+            let (n, addr) = socket.recv_from(&mut buffer)?;
+            let str = String::from_utf8_lossy(&buffer[..n]);
+            log::info!("Received {} bytes from {}: {}", n, addr, str);
+        }
     }
 }
